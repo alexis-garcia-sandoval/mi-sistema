@@ -7,658 +7,592 @@
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     :root {
-      --blue-deep:    #0a0f2e;
-      --blue-strong:  #1a3aff;
-      --blue-bright:  #3d85ff;
-      --blue-electric:#00c3ff;
-      --blue-neon:    #0ff4ff;
+      --black:        #01010a;
+      --blue-deep:    #050c2a;
+      --blue-strong:  #1a4aff;
+      --blue-bright:  #4d9fff;
+      --blue-electric:#00c8ff;
+      --blue-chess:   #7ab8d4;
       --green-soft:   #7effa0;
-      --green-mist:   #a8ffbc;
+      --green-hand:   #5a9e3a;
       --green-glow:   #00ff88;
-      --red-pixel:    #ff2a2a;
-      --yellow-grid:  #ffe033;
-      --orange-grid:  #ff8c00;
-      --white-dim:    rgba(255,255,255,0.07);
+      --white-dim:    rgba(255,255,255,0.06);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin:0; padding:0; box-sizing:border-box; }
 
     body {
-      background: linear-gradient(180deg, #06091f 0%, #0d1b4b 40%, #091a2f 100%);
+      background: var(--black);
       min-height: 100vh;
       font-family: 'VT323', monospace;
-      color: var(--blue-neon);
+      color: var(--blue-electric);
       overflow-x: hidden;
       position: relative;
     }
 
-    /* ─── STARS LAYER ─── */
-    #stars-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    /* ─── SCANLINES ─── */
+    /* SCANLINES */
     body::after {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      content:'';
+      position:fixed; inset:0;
       background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.18) 2px,
-        rgba(0,0,0,0.18) 4px
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px
       );
-      pointer-events: none;
-      z-index: 9999;
+      pointer-events:none;
+      z-index:9999;
     }
 
-    /* ─── MAIN LAYOUT ─── */
+    /* ── STARS ── */
+    #stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+    /* ── LAYOUT ── */
     .wrapper {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem 4rem;
-      gap: 3rem;
+      position:relative; z-index:10;
+      display:flex; flex-direction:column; align-items:center;
+      gap:2.5rem; padding:2rem 1rem 4rem;
     }
 
-    /* ─── HEADER ─── */
-    header {
-      text-align: center;
-      padding-top: 1.5rem;
-    }
+    /* ── HEADER ── */
+    header { text-align:center; }
 
     .glitch-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(2.2rem, 6vw, 4.5rem);
-      font-weight: 900;
-      color: var(--blue-electric);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      position: relative;
-      display: inline-block;
-      text-shadow:
-        0 0 8px var(--blue-electric),
-        0 0 25px var(--blue-strong),
-        0 0 60px rgba(0,195,255,0.4);
-      animation: glitch-flicker 6s infinite;
-    }
-
-    .glitch-title::before,
-    .glitch-title::after {
-      content: attr(data-text);
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
+      font-family:'Orbitron',sans-serif;
+      font-size:clamp(2rem,6vw,4rem);
+      font-weight:900;
+      color:var(--blue-electric);
+      letter-spacing:.12em; text-transform:uppercase;
+      position:relative; display:inline-block;
+      text-shadow:0 0 8px var(--blue-electric),0 0 30px var(--blue-strong),0 0 70px rgba(0,200,255,.35);
+      animation:flicker 7s infinite;
     }
     .glitch-title::before {
-      color: var(--green-soft);
-      text-shadow: -3px 0 var(--green-soft);
-      animation: glitch-left 4s infinite linear alternate-reverse;
-      clip-path: polygon(0 10%, 100% 10%, 100% 40%, 0 40%);
+      content:attr(data-text); position:absolute; top:0; left:0;
+      color:var(--green-soft); text-shadow:-3px 0 var(--green-soft);
+      clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%);
+      animation:gl 4s infinite linear alternate-reverse;
     }
     .glitch-title::after {
-      color: var(--red-pixel);
-      text-shadow: 3px 0 var(--red-pixel);
-      animation: glitch-right 3s infinite linear alternate-reverse;
-      clip-path: polygon(0 60%, 100% 60%, 100% 85%, 0 85%);
+      content:attr(data-text); position:absolute; top:0; left:0;
+      color:#ff3a6e; text-shadow:3px 0 #ff3a6e;
+      clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%);
+      animation:gr 3s infinite linear alternate-reverse;
     }
-
-    @keyframes glitch-left {
-      0%   { transform: translateX(0); opacity: 0; }
-      2%   { transform: translateX(-4px); opacity: 0.9; }
-      4%   { transform: translateX(0); opacity: 0; }
-      100% { opacity: 0; }
+    @keyframes gl {
+      0%{transform:translateX(0);opacity:0} 3%{transform:translateX(-4px);opacity:.9}
+      6%{transform:translateX(0);opacity:0} 100%{opacity:0}
     }
-    @keyframes glitch-right {
-      0%   { transform: translateX(0); opacity: 0; }
-      3%   { transform: translateX(4px); opacity: 0.85; }
-      6%   { transform: translateX(0); opacity: 0; }
-      100% { opacity: 0; }
+    @keyframes gr {
+      0%{transform:translateX(0);opacity:0} 4%{transform:translateX(4px);opacity:.85}
+      8%{transform:translateX(0);opacity:0} 100%{opacity:0}
     }
-    @keyframes glitch-flicker {
-      0%, 97%, 100% { opacity: 1; }
-      97.5% { opacity: 0.6; transform: skewX(-5deg); }
-      98%   { opacity: 1; }
-      98.5% { opacity: 0.3; transform: skewX(3deg); }
-      99%   { opacity: 1; }
+    @keyframes flicker {
+      0%,96%,100%{opacity:1} 96.5%{opacity:.4;transform:skewX(-4deg)}
+      97%{opacity:1} 97.8%{opacity:.2;transform:skewX(2deg)} 98.2%{opacity:1}
     }
 
     .subtitle {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: clamp(0.8rem, 2vw, 1.1rem);
-      color: var(--green-soft);
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      margin-top: 0.6rem;
-      opacity: 0.75;
-      text-shadow: 0 0 12px var(--green-glow);
-      animation: pulse-text 3s ease-in-out infinite;
+      font-family:'Share Tech Mono',monospace;
+      font-size:clamp(.75rem,2vw,1rem);
+      color:var(--green-soft); letter-spacing:.35em; text-transform:uppercase;
+      margin-top:.5rem; opacity:.7;
+      text-shadow:0 0 12px var(--green-glow);
+      animation:pulse 3s ease-in-out infinite;
     }
-    @keyframes pulse-text {
-      0%, 100% { opacity: 0.6; }
-      50%       { opacity: 1; }
+    @keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+
+    /* ── COSMIC SCENE ── */
+    .scene {
+      position:relative;
+      width:min(700px,96vw);
+      height:min(560px,80vw);
     }
 
-    /* ─── PORTAL SECTION ─── */
-    .portal-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-      width: 100%;
-      max-width: 900px;
+    #board-canvas {
+      position:absolute; inset:0;
+      width:100%; height:100%;
     }
 
-    .portal-frame {
-      position: relative;
-      width: min(420px, 92vw);
-      aspect-ratio: 4/5;
-      border: 3px solid var(--orange-grid);
-      box-shadow:
-        0 0 0 6px rgba(255,140,0,0.15),
-        0 0 40px var(--orange-grid),
-        inset 0 0 40px rgba(255,50,0,0.18);
-      background: rgba(200, 30, 0, 0.55);
-      overflow: hidden;
+    /* ── PLANETS ── */
+    .planet {
+      position:absolute;
+      border-radius:50%;
+      pointer-events:none;
+      box-shadow: inset -6px -6px 18px rgba(0,0,0,.7);
     }
 
-    #portal-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
+    /* Earth */
+    .p-earth {
+      width:clamp(80px,14%,110px); aspect-ratio:1;
+      bottom:12%; right:4%;
+      background: radial-gradient(circle at 38% 35%,
+        #a8e4ff 0%, #3a9aff 25%, #1a5aff 50%, #0a2080 80%, #04103a 100%);
+      box-shadow: inset -6px -6px 18px rgba(0,0,0,.7),
+                  0 0 28px rgba(58,154,255,.5);
+      animation:float1 6s ease-in-out infinite;
+    }
+    /* Land patches on earth */
+    .p-earth::before {
+      content:'';
+      position:absolute; inset:0; border-radius:50%;
+      background: radial-gradient(ellipse 30% 20% at 55% 42%, #7effa0 0%, transparent 100%),
+                  radial-gradient(ellipse 18% 12% at 30% 60%, #5ad67a 0%, transparent 100%);
+      opacity:.8;
     }
 
-    /* Orb overlays */
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    .orb-top {
-      width: 22%;
-      aspect-ratio: 1;
-      top: 15%;
-      right: 12%;
-      background: radial-gradient(circle at 38% 35%, #6ab4ff 0%, #1a3aff 45%, #060e38 100%);
-      box-shadow: 0 0 20px #3d85ff, 0 0 50px rgba(26,58,255,0.5);
-      animation: orb-float 5s ease-in-out infinite;
-    }
-    .orb-mid {
-      width: 14%;
-      aspect-ratio: 1;
-      top: 30%;
-      right: 25%;
-      background: radial-gradient(circle at 40% 35%, #a08080 0%, #7a2020 50%, #1a0000 100%);
-      box-shadow: 0 0 14px rgba(180,60,60,0.8);
-      animation: orb-float 7s ease-in-out infinite reverse;
-    }
-    .orb-bot {
-      width: 20%;
-      aspect-ratio: 1;
-      bottom: 16%;
-      left: 38%;
-      background: radial-gradient(circle at 38% 35%, #6ab4ff 0%, #1a3aff 45%, #060e38 100%);
-      box-shadow: 0 0 18px #3d85ff, 0 0 40px rgba(26,58,255,0.4);
-      animation: orb-float 6s ease-in-out infinite;
-      animation-delay: 1.5s;
+    /* Mars */
+    .p-mars {
+      width:clamp(90px,16%,125px); aspect-ratio:1;
+      bottom:30%; left:2%;
+      background: radial-gradient(circle at 38% 35%,
+        #ff9966 0%, #cc4411 40%, #8a1a00 80%, #2a0800 100%);
+      box-shadow: inset -5px -5px 16px rgba(0,0,0,.8),
+                  0 0 22px rgba(200,60,20,.4);
+      animation:float2 7s ease-in-out infinite;
     }
 
-    @keyframes orb-float {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50%       { transform: translateY(-8px) scale(1.04); }
+    /* Saturn */
+    .p-saturn-wrap {
+      position:absolute;
+      width:clamp(110px,20%,155px);
+      bottom:5%; left:28%;
+      animation:float3 8s ease-in-out infinite;
+    }
+    .p-saturn {
+      width:100%; aspect-ratio:1; border-radius:50%;
+      background: radial-gradient(circle at 38% 35%,
+        #ffe090 0%, #d4a020 40%, #a06010 75%, #3a2000 100%);
+      box-shadow: inset -6px -6px 18px rgba(0,0,0,.7);
+      position:relative;
+    }
+    .p-saturn-ring {
+      position:absolute;
+      width:150%; height:28%;
+      top:36%; left:-25%;
+      border-radius:50%;
+      border:4px solid rgba(255,220,130,.65);
+      box-shadow:0 0 12px rgba(255,200,80,.4),
+                 0 0 1px 6px rgba(255,180,60,.15);
+      transform:rotateX(70deg);
     }
 
-    /* Pixel glitch decorations on frame */
-    .pixel-glitch {
-      position: absolute;
-      background: var(--red-pixel);
-      image-rendering: pixelated;
-      animation: pixel-flicker 2.5s steps(1) infinite;
+    /* Moon */
+    .p-moon {
+      width:clamp(65px,11%,90px); aspect-ratio:1;
+      bottom:20%; left:36%;
+      background: radial-gradient(circle at 38% 35%,
+        #c8d8e8 0%, #8898a8 45%, #445060 80%, #1a2030 100%);
+      box-shadow: inset -5px -5px 16px rgba(0,0,0,.75),
+                  0 0 16px rgba(100,140,180,.35);
+      animation:float1 9s ease-in-out infinite reverse;
     }
-    .px1 { width: 32px; height: 8px; top: 6%; right: 0; }
-    .px2 { width: 16px; height: 8px; top: 12%; right: 36px; }
-    .px3 { width: 48px; height: 8px; top: 8%; right: 8px; }
-    .px4 { width: 8px;  height: 48px; bottom: 5%; left: 0; }
-    .px5 { width: 8px;  height: 24px; bottom: 15%; left: 16px; }
-    .maze-icon {
-      position: absolute;
-      top: 4%; left: 3%;
-      width: 18%;
-      aspect-ratio: 1;
-      border: 2px solid var(--blue-electric);
-      box-shadow: 0 0 12px var(--blue-electric), inset 0 0 8px rgba(0,195,255,0.2);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .maze-inner {
-      width: 70%; height: 70%;
-      border: 1px solid var(--yellow-grid);
-      box-shadow: inset 0 0 6px rgba(255,224,51,0.4);
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(4, 1fr);
-    }
-    .maze-cell { border: 0.5px solid rgba(255,224,51,0.3); }
-
-    @keyframes pixel-flicker {
-      0%, 80%, 100% { opacity: 1; transform: translateX(0); }
-      82% { opacity: 0.3; transform: translateX(4px); }
-      85% { opacity: 1; transform: translateX(-2px); }
-      90% { opacity: 0.6; transform: translateX(0); }
+    /* Craters */
+    .p-moon::before {
+      content:'';
+      position:absolute; inset:0; border-radius:50%;
+      background:
+        radial-gradient(circle 14% at 35% 55%, rgba(0,0,0,.3) 0%, transparent 100%),
+        radial-gradient(circle 8%  at 62% 32%, rgba(0,0,0,.25) 0%, transparent 100%),
+        radial-gradient(circle 10% at 70% 68%, rgba(0,0,0,.2) 0%, transparent 100%);
     }
 
-    /* ─── CARDS GRID ─── */
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.5rem;
-      width: 100%;
-      max-width: 900px;
+    /* Small blue planets */
+    .p-small1 {
+      width:clamp(38px,6%,56px); aspect-ratio:1;
+      top:28%; left:28%;
+      background: radial-gradient(circle at 38% 35%,
+        #88ccff 0%, #2266dd 50%, #0a1870 100%);
+      box-shadow: inset -3px -3px 9px rgba(0,0,0,.7),
+                  0 0 14px rgba(30,120,255,.5);
+      animation:float2 5s ease-in-out infinite;
+    }
+    .p-small2 {
+      width:clamp(30px,5%,46px); aspect-ratio:1;
+      top:36%; right:24%;
+      background: radial-gradient(circle at 38% 35%,
+        #88ccff 0%, #2266dd 50%, #0a1870 100%);
+      box-shadow: inset -3px -3px 9px rgba(0,0,0,.7),
+                  0 0 12px rgba(30,120,255,.4);
+      animation:float3 6.5s ease-in-out infinite reverse;
+    }
+    .p-picked {
+      width:clamp(55px,9%,78px); aspect-ratio:1;
+      top:22%; left:46%;
+      background: radial-gradient(circle at 40% 35%,
+        #aaddff 0%, #44aaff 40%, #1155dd 75%, #04103a 100%);
+      box-shadow: inset -4px -4px 12px rgba(0,0,0,.7),
+                  0 0 24px rgba(60,160,255,.6);
+      animation:float1 4s ease-in-out infinite;
     }
 
-    .card {
-      border: 1px solid rgba(0, 195, 255, 0.3);
-      background: linear-gradient(135deg, rgba(10,15,46,0.9) 0%, rgba(5,25,55,0.85) 100%);
-      padding: 1.5rem 1.2rem;
-      position: relative;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      overflow: hidden;
-    }
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--blue-electric), var(--green-soft), transparent);
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0 30px rgba(0,195,255,0.3), 0 0 60px rgba(0,255,136,0.1);
-      border-color: var(--green-soft);
-    }
-    .card:hover::before {
-      background: linear-gradient(90deg, transparent, var(--green-soft), var(--blue-electric), transparent);
-    }
+    @keyframes float1 { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-10px)} }
+    @keyframes float2 { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-7px) rotate(2deg)} }
+    @keyframes float3 { 0%,100%{transform:translateY(-4px)} 50%{transform:translateY(6px)} }
 
-    .card-icon {
-      font-size: 2rem;
-      margin-bottom: 0.7rem;
-      display: block;
-      filter: drop-shadow(0 0 8px var(--blue-electric));
+    /* ── COSMIC HAND (CSS art) ── */
+    .hand-wrap {
+      position:absolute;
+      top:0; right:5%;
+      width:clamp(120px,28%,210px);
+      height:clamp(120px,28%,210px);
+      pointer-events:none;
+      animation:hand-hover 5s ease-in-out infinite;
     }
-    .card-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--green-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.2em;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 0 10px var(--green-glow);
+    @keyframes hand-hover {
+      0%,100%{transform:translateY(0) rotate(-4deg)}
+      50%{transform:translateY(12px) rotate(-2deg)}
     }
-    .card-text {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.85rem;
-      color: rgba(200, 230, 255, 0.7);
-      line-height: 1.6;
-    }
+    .hand-svg { width:100%; height:100%; }
 
-    /* ─── MAIN GREETING ─── */
-    .main-greeting {
-      text-align: center;
-      padding: 2.5rem 2rem;
-      border: 1px solid rgba(0,195,255,0.2);
-      background: linear-gradient(180deg, rgba(10,15,46,0.7) 0%, rgba(0,10,30,0.9) 100%);
-      width: 100%;
-      max-width: 900px;
-      position: relative;
-      overflow: hidden;
+    /* ── GREETING BOX ── */
+    .greeting-box {
+      width:100%; max-width:700px;
+      border:1px solid rgba(0,200,255,.25);
+      background:linear-gradient(160deg,rgba(5,12,42,.92) 0%,rgba(1,1,10,.95) 100%);
+      padding:2rem 2.5rem;
+      text-align:center;
+      position:relative; overflow:hidden;
     }
-    .main-greeting::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--green-soft), var(--blue-electric), transparent);
-      animation: scan-line 4s linear infinite;
+    .greeting-box::before {
+      content:'';
+      position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,transparent,var(--blue-electric),var(--green-soft),transparent);
     }
-    @keyframes scan-line {
-      0%   { transform: scaleX(0) translateX(-50%); }
-      100% { transform: scaleX(1) translateX(0); }
+    .greeting-box::after {
+      content:'';
+      position:absolute; bottom:0; left:0; right:0; height:1px;
+      background:linear-gradient(90deg,transparent,var(--green-soft),var(--blue-electric),transparent);
     }
 
     .greeting-h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(1.5rem, 4vw, 2.8rem);
-      font-weight: 900;
-      color: var(--blue-electric);
-      text-shadow:
-        0 0 10px var(--blue-electric),
-        0 0 30px var(--blue-strong),
-        0 0 70px rgba(0,195,255,0.3);
-      animation: glitch-flicker 8s infinite;
+      font-family:'Orbitron',sans-serif;
+      font-size:clamp(1.4rem,4vw,2.6rem);
+      font-weight:900;
+      color:var(--blue-electric);
+      text-shadow:0 0 10px var(--blue-electric),0 0 35px var(--blue-strong),0 0 80px rgba(0,200,255,.25);
+      animation:flicker 9s infinite;
     }
     .greeting-sub {
-      font-family: 'VT323', monospace;
-      font-size: clamp(1rem, 3vw, 1.6rem);
-      color: var(--green-soft);
-      letter-spacing: 0.1em;
-      margin-top: 1rem;
-      text-shadow: 0 0 15px var(--green-glow);
+      font-family:'VT323',monospace;
+      font-size:clamp(1rem,2.5vw,1.5rem);
+      color:var(--green-soft);
+      letter-spacing:.12em;
+      margin-top:.8rem;
+      text-shadow:0 0 14px var(--green-glow);
     }
 
-    /* ─── DIVIDER ─── */
+    /* ── DIVIDER ── */
     .divider {
-      width: 100%;
-      max-width: 900px;
-      height: 1px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        var(--blue-strong) 20%,
-        var(--green-soft) 50%,
-        var(--blue-strong) 80%,
-        transparent 100%
-      );
-      position: relative;
+      width:100%; max-width:700px; height:1px;
+      background:linear-gradient(90deg,
+        transparent 0%,var(--blue-strong) 20%,var(--green-soft) 50%,
+        var(--blue-strong) 80%,transparent 100%);
+      position:relative;
     }
-    .divider::before {
-      content: '◆ S T A R L E S S ◆';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.4em;
-      color: var(--green-mist);
-      background: #0a0f2e;
-      padding: 0 1rem;
-      text-shadow: 0 0 10px var(--green-glow);
+    .divider span {
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      font-family:'Share Tech Mono',monospace; font-size:.65rem;
+      letter-spacing:.4em; color:var(--green-soft);
+      background:var(--black); padding:0 1rem;
+      text-shadow:0 0 10px var(--green-glow);
     }
 
-    /* ─── PIXEL DIAGONAL STRIPES (bottom right) ─── */
-    .pixel-stripes {
-      position: fixed;
-      bottom: 8%;
-      right: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      pointer-events: none;
-      z-index: 5;
-      animation: pixel-flicker 3s steps(1) infinite;
+    /* ── CARDS ── */
+    .cards {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:1.25rem; width:100%; max-width:700px;
     }
-    .stripe {
-      height: 8px;
-      background: var(--red-pixel);
-      image-rendering: pixelated;
+    .card {
+      border:1px solid rgba(0,200,255,.2);
+      background:linear-gradient(135deg,rgba(5,12,42,.9) 0%,rgba(1,1,10,.92) 100%);
+      padding:1.3rem 1.1rem;
+      position:relative; overflow:hidden;
+      transition:transform .25s,box-shadow .25s,border-color .25s;
     }
-    .stripe:nth-child(1) { width: 90px; transform: translateX(-10px) rotate(-2deg); }
-    .stripe:nth-child(2) { width: 140px; transform: translateX(-30px) rotate(-2deg); }
-    .stripe:nth-child(3) { width: 60px; transform: translateX(-5px) rotate(-2deg); }
+    .card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,transparent,var(--blue-electric),var(--green-soft),transparent);
+    }
+    .card:hover {
+      transform:translateY(-4px);
+      box-shadow:0 0 28px rgba(0,200,255,.3),0 0 55px rgba(0,255,136,.1);
+      border-color:var(--green-soft);
+    }
+    .card-icon { font-size:1.8rem; margin-bottom:.6rem; filter:drop-shadow(0 0 7px var(--blue-electric)); }
+    .card-label {
+      font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:700;
+      color:var(--green-soft); text-transform:uppercase; letter-spacing:.2em;
+      margin-bottom:.4rem; text-shadow:0 0 10px var(--green-glow);
+    }
+    .card-text {
+      font-family:'Share Tech Mono',monospace; font-size:.82rem;
+      color:rgba(180,220,255,.65); line-height:1.55;
+    }
 
-    /* ─── FOOTER ─── */
+    /* ── FOOTER ── */
     footer {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.75rem;
-      color: rgba(0, 195, 255, 0.35);
-      letter-spacing: 0.3em;
-      text-align: center;
-      padding-bottom: 1.5rem;
+      font-family:'Share Tech Mono',monospace; font-size:.72rem;
+      color:rgba(0,200,255,.3); letter-spacing:.3em; text-align:center;
     }
-    footer span {
-      color: var(--green-soft);
-      text-shadow: 0 0 8px var(--green-glow);
-      opacity: 0.6;
-    }
+    footer span { color:var(--green-soft); text-shadow:0 0 8px var(--green-glow); opacity:.55; }
   </style>
 </head>
 <body>
 
-  <!-- Stars -->
-  <canvas id="stars-canvas"></canvas>
+<canvas id="stars"></canvas>
 
-  <!-- Pixel stripes decoration -->
-  <div class="pixel-stripes">
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <h2 class="glitch-title" data-text="MI SISTEMA">MI SISTEMA</h2>
+    <p class="subtitle">// STARLESS &middot; COSMIC PROTOCOL ACTIVE //</p>
+  </header>
+
+  <!-- COSMIC CHESS SCENE -->
+  <div class="scene">
+    <!-- Chessboard drawn by canvas -->
+    <canvas id="board-canvas"></canvas>
+
+    <!-- Planets -->
+    <div class="planet p-mars"></div>
+    <div class="planet p-earth"></div>
+    <div class="p-saturn-wrap">
+      <div class="planet p-saturn">
+        <div class="p-saturn-ring"></div>
+      </div>
+    </div>
+    <div class="planet p-moon"></div>
+    <div class="planet p-small1"></div>
+    <div class="planet p-small2"></div>
+    <div class="planet p-picked"></div>
+
+    <!-- Cosmic hand -->
+    <div class="hand-wrap">
+      <!-- SVG of a stylized hand reaching down, tinted green -->
+      <svg class="hand-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="hg" cx="40%" cy="30%" r="70%">
+            <stop offset="0%"   stop-color="#8ac860"/>
+            <stop offset="55%"  stop-color="#4a8c28"/>
+            <stop offset="100%" stop-color="#1a3a08"/>
+          </radialGradient>
+          <filter id="hblur">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.2"/>
+          </filter>
+        </defs>
+        <!-- Wrist / palm -->
+        <ellipse cx="110" cy="60" rx="42" ry="30" fill="url(#hg)" opacity=".95"/>
+        <!-- Fingers -->
+        <!-- Thumb -->
+        <ellipse cx="72" cy="68" rx="11" ry="20" fill="url(#hg)"
+                 transform="rotate(-30 72 68)"/>
+        <!-- Index finger -->
+        <rect x="84" y="30" width="16" height="46" rx="8" fill="url(#hg)"/>
+        <!-- Middle -->
+        <rect x="103" y="22" width="16" height="50" rx="8" fill="url(#hg)"/>
+        <!-- Ring -->
+        <rect x="122" y="28" width="15" height="45" rx="7" fill="url(#hg)"/>
+        <!-- Pinky -->
+        <rect x="140" y="38" width="13" height="36" rx="6" fill="url(#hg)"/>
+        <!-- Palm base -->
+        <rect x="74" y="58" width="80" height="34" rx="10" fill="url(#hg)"/>
+        <!-- Holding planet hint (semi-transparent circle) -->
+        <circle cx="100" cy="90" r="16" fill="rgba(120,200,255,.18)" stroke="rgba(0,200,255,.3)" stroke-width="1.5"/>
+        <!-- Knuckle highlights -->
+        <ellipse cx="92"  cy="62" rx="6" ry="3" fill="rgba(255,255,255,.1)" transform="rotate(-10 92 62)"/>
+        <ellipse cx="111" cy="56" rx="6" ry="3" fill="rgba(255,255,255,.1)" transform="rotate(-5 111 56)"/>
+        <ellipse cx="130" cy="59" rx="5" ry="3" fill="rgba(255,255,255,.1)" transform="rotate(5 130 59)"/>
+        <!-- Green glow drop shadow -->
+        <ellipse cx="108" cy="96" rx="48" ry="10" fill="rgba(80,180,40,.18)" filter="url(#hblur)"/>
+      </svg>
+    </div>
   </div>
 
-  <div class="wrapper">
+  <!-- DIVIDER -->
+  <div class="divider"><span>◆ S T A R L E S S ◆</span></div>
 
-    <!-- HEADER -->
-    <header>
-      <h2 class="glitch-title" data-text="MI SISTEMA">MI SISTEMA</h2>
-      <p class="subtitle">// FLUX TRANSMISSION :: NODE ACTIVE //</p>
-    </header>
+  <!-- GREETING -->
+  <section class="greeting-box">
+    <h1 class="greeting-h1">Hola desde Flask</h1>
+    <p class="greeting-sub">&gt;_ SISTEMA EN LINEA &nbsp;&middot;&nbsp; PROTOCOLO ACTIVO</p>
+  </section>
 
-    <!-- PORTAL -->
-    <section class="portal-section">
-      <div class="portal-frame">
-        <!-- Grid tunnel canvas -->
-        <canvas id="portal-canvas"></canvas>
+  <!-- CARDS -->
+  <section class="cards">
+    <div class="card">
+      <div class="card-icon">◈</div>
+      <div class="card-label">Sistema</div>
+      <div class="card-text">Núcleo operativo inicializado. Módulos en estado nominal.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⬡</div>
+      <div class="card-label">Señal</div>
+      <div class="card-text">Transmisión recibida desde el vacío. Frecuencia azul estabilizada.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⊛</div>
+      <div class="card-label">Protocolo</div>
+      <div class="card-text">Starless — más allá del horizonte. Conexión persistente.</div>
+    </div>
+  </section>
 
-        <!-- Maze icon -->
-        <div class="maze-icon">
-          <div class="maze-inner">
-            <div class="maze-cell"></div><div class="maze-cell"></div>
-            <div class="maze-cell"></div><div class="maze-cell"></div>
-            <div class="maze-cell"></div><div class="maze-cell"></div>
-            <div class="maze-cell"></div><div class="maze-cell"></div>
-            <div class="maze-cell"></div><div class="maze-cell"></div>
-            <div class="maze-cell"></div><div class="maze-cell"></div>
-            <div class="maze-cell"></div><div class="maze-cell"></div>
-            <div class="maze-cell"></div><div class="maze-cell"></div>
-          </div>
-        </div>
+  <div class="divider"><span></span></div>
 
-        <!-- Orbs -->
-        <div class="orb orb-top"></div>
-        <div class="orb orb-mid"></div>
-        <div class="orb orb-bot"></div>
+  <footer>
+    <span>© MMXXVI</span> &nbsp;&middot;&nbsp; MI SISTEMA &nbsp;&middot;&nbsp; <span>VAPORWAVE BUILD</span>
+  </footer>
 
-        <!-- Pixel glitch edge decorations -->
-        <div class="pixel-glitch px1"></div>
-        <div class="pixel-glitch px2"></div>
-        <div class="pixel-glitch px3"></div>
-        <div class="pixel-glitch px4"></div>
-        <div class="pixel-glitch px5"></div>
-      </div>
-    </section>
+</div>
 
-    <!-- DIVIDER -->
-    <div class="divider"></div>
+<script>
+/* ── STARS ── */
+(function(){
+  const c = document.getElementById('stars');
+  const ctx = c.getContext('2d');
+  let stars = [];
+  function resize(){ c.width=innerWidth; c.height=innerHeight; }
+  function init(){
+    stars = Array.from({length:300},()=>({
+      x: Math.random()*c.width,
+      y: Math.random()*c.height,
+      r: Math.random()*1.5+.2,
+      a: Math.random()*.8+.15,
+      s: Math.random()*.015+.004,
+      p: Math.random()*Math.PI*2,
+      col: Math.random()>.55 ? [126,255,160] : [0,200,255]
+    }));
+  }
+  function draw(t){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s=>{
+      const a = s.a*(0.5+0.5*Math.sin(t*s.s+s.p));
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${s.col[0]},${s.col[1]},${s.col[2]},${a})`;
+      ctx.fill();
+    });
+  }
+  function loop(t){ draw(t); requestAnimationFrame(loop); }
+  resize(); init();
+  window.addEventListener('resize',()=>{ resize(); init(); });
+  requestAnimationFrame(loop);
+})();
 
-    <!-- MAIN GREETING -->
-    <section class="main-greeting">
-      <h1 class="greeting-h1">Hola desde Flask</h1>
-      <p class="greeting-sub">
-        &gt;_ SISTEMA EN LINEA &nbsp; // &nbsp; PROTOCOLO ACTIVO
-      </p>
-    </section>
+/* ── CHESSBOARD ── */
+(function(){
+  const canvas = document.getElementById('board-canvas');
+  const ctx = canvas.getContext('2d');
 
-    <!-- CARDS -->
-    <section class="cards">
-      <div class="card">
-        <span class="card-icon">◈</span>
-        <div class="card-title">Sistema</div>
-        <div class="card-text">Núcleo operativo inicializado. Todos los módulos en estado nominal.</div>
-      </div>
-      <div class="card">
-        <span class="card-icon">⬡</span>
-        <div class="card-title">Señal</div>
-        <div class="card-text">Transmisión recibida desde el vacío. Frecuencia estabilizada en banda azul.</div>
-      </div>
-      <div class="card">
-        <span class="card-icon">⊛</span>
-        <div class="card-title">Protocolo</div>
-        <div class="card-text">Starless — más allá del horizonte de eventos. Conexión persistente.</div>
-      </div>
-    </section>
+  function resize(){
+    canvas.width  = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
 
-    <!-- FOOTER DIVIDER -->
-    <div class="divider"></div>
+  function draw(){
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
 
-    <footer>
-      <span>© MMXXVI</span> &nbsp;·&nbsp; MI SISTEMA &nbsp;·&nbsp; <span>VAPORWAVE BUILD</span>
-    </footer>
+    /* Deep space background */
+    const bg = ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0, '#00000f');
+    bg.addColorStop(.6, '#010820');
+    bg.addColorStop(1, '#050c2a');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,W,H);
 
-  </div>
+    /* Milky way glow strip */
+    const mw = ctx.createRadialGradient(W*.55,H*.25,0,W*.55,H*.25,W*.55);
+    mw.addColorStop(0,'rgba(60,90,180,.18)');
+    mw.addColorStop(.4,'rgba(20,40,120,.07)');
+    mw.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = mw;
+    ctx.fillRect(0,0,W,H);
 
-  <script>
-    /* ── STARS ── */
-    (function() {
-      const canvas = document.getElementById('stars-canvas');
-      const ctx = canvas.getContext('2d');
-      let stars = [];
+    /* ── PERSPECTIVE CHESSBOARD ── */
+    const COLS = 8, ROWS = 8;
+    /* Horizon line */
+    const hy = H * 0.48;
+    /* Vanishing point */
+    const vx = W * 0.5, vy = hy * 0.72;
+    /* Board bottom edge */
+    const bL = 0, bR = W, bY = H;
+    /* Board left / right at horizon */
+    const hL = W*0.1, hR = W*0.9;
 
-      function resize() {
-        canvas.width  = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
+    for(let row=0; row<ROWS; row++){
+      for(let col=0; col<COLS; col++){
+        /* t=0 → horizon edge, t=1 → bottom edge */
+        const t0 = row    / ROWS;
+        const t1 = (row+1)/ ROWS;
 
-      function initStars() {
-        stars = [];
-        for (let i = 0; i < 220; i++) {
-          stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            r: Math.random() * 1.4 + 0.2,
-            alpha: Math.random() * 0.7 + 0.2,
-            speed: Math.random() * 0.012 + 0.004,
-            phase: Math.random() * Math.PI * 2,
-            color: Math.random() > 0.6
-              ? `rgba(126,255,160,` // green-soft
-              : `rgba(0,195,255,`   // blue-electric
-          });
+        /* perspective lerp — quadratic for depth feel */
+        function pt(t,c){
+          const tt = t*t;
+          const lx = hL + (bL-hL)*tt;
+          const rx = hR + (bR-hR)*tt;
+          const y  = vy + (bY-vy)*tt;
+          const x  = lx + (rx-lx)*(c/COLS);
+          return {x,y};
         }
-      }
 
-      function drawStars(t) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        stars.forEach(s => {
-          const a = s.alpha * (0.5 + 0.5 * Math.sin(t * s.speed + s.phase));
+        const tl = pt(t0,col);
+        const tr = pt(t0,col+1);
+        const bl = pt(t1,col);
+        const br = pt(t1,col+1);
+
+        const isDark = (row+col)%2===0;
+
+        ctx.beginPath();
+        ctx.moveTo(tl.x,tl.y);
+        ctx.lineTo(tr.x,tr.y);
+        ctx.lineTo(br.x,br.y);
+        ctx.lineTo(bl.x,bl.y);
+        ctx.closePath();
+
+        if(isDark){
+          ctx.fillStyle='rgba(0,0,15,.95)';
+        } else {
+          /* Blue-tinted light squares */
+          ctx.fillStyle=`rgba(80,140,190,${0.3+t1*0.35})`;
+        }
+        ctx.fill();
+
+        /* Grid lines */
+        ctx.strokeStyle='rgba(0,200,255,.12)';
+        ctx.lineWidth=.8;
+        ctx.stroke();
+
+        /* Reflection disc on light squares */
+        if(!isDark){
+          const cx=(tl.x+tr.x+bl.x+br.x)/4;
+          const cy=(tl.y+tr.y+bl.y+br.y)/4;
+          const rx=(br.x-bl.x)*0.28;
+          const ry=(bl.y-tl.y)*0.12;
+          const refl=ctx.createRadialGradient(cx,cy,0,cx,cy,rx);
+          refl.addColorStop(0,'rgba(100,180,255,.25)');
+          refl.addColorStop(1,'rgba(0,0,0,0)');
           ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-          ctx.fillStyle = s.color + a + ')';
+          ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);
+          ctx.fillStyle=refl;
           ctx.fill();
-        });
-      }
-
-      function loop(t) {
-        drawStars(t);
-        requestAnimationFrame(loop);
-      }
-
-      resize();
-      initStars();
-      window.addEventListener('resize', () => { resize(); initStars(); });
-      requestAnimationFrame(loop);
-    })();
-
-    /* ── PORTAL GRID TUNNEL ── */
-    (function() {
-      const canvas = document.getElementById('portal-canvas');
-      const ctx = canvas.getContext('2d');
-
-      function resize() {
-        canvas.width  = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-      }
-      resize();
-      window.addEventListener('resize', resize);
-
-      const NUM_RINGS  = 18;
-      const NUM_LINES  = 14;
-      const SPEED      = 0.008;
-      let offset       = 0;
-
-      function lerp(a, b, t) { return a + (b - a) * t; }
-
-      function drawTunnel(t) {
-        const W = canvas.width;
-        const H = canvas.height;
-        const cx = W * 0.5;
-        const cy = H * 0.54;
-
-        /* Background */
-        ctx.fillStyle = 'rgba(180, 20, 0, 0.88)';
-        ctx.fillRect(0, 0, W, H);
-
-        /* Subtle vignette */
-        const vig = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.7);
-        vig.addColorStop(0, 'rgba(0,0,0,0)');
-        vig.addColorStop(1, 'rgba(0,0,0,0.55)');
-        ctx.fillStyle = vig;
-        ctx.fillRect(0, 0, W, H);
-
-        const maxR   = Math.min(W, H) * 0.96;
-        const minR   = Math.min(W, H) * 0.04;
-
-        offset = (offset + SPEED) % 1;
-
-        /* Draw concentric ellipses (rings) */
-        for (let i = 0; i <= NUM_RINGS; i++) {
-          const frac = ((i / NUM_RINGS) + offset) % 1;
-          const r = lerp(minR, maxR, frac);
-
-          /* perspective squish: rings farther = more squished vertically */
-          const squeeze = lerp(0.22, 0.68, frac);
-          const rx = r * 0.58;
-          const ry = r * squeeze;
-
-          const alpha = lerp(0.05, 0.9, frac);
-          const g     = Math.floor(lerp(50, 224, frac));   // yellow–orange tint in grid lines
-          ctx.strokeStyle = `rgba(255, ${g}, 0, ${alpha})`;
-          ctx.lineWidth   = lerp(0.5, 1.6, frac);
-
-          ctx.beginPath();
-          ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-          ctx.stroke();
         }
-
-        /* Draw radial lines from center */
-        for (let i = 0; i < NUM_LINES; i++) {
-          const angle = (i / NUM_LINES) * Math.PI * 2;
-          const outerFrac = 1;
-          const outerR  = maxR * 0.58;
-          const outerRY = maxR * 0.68;
-
-          const sx = cx + Math.cos(angle) * (minR * 0.58);
-          const sy = cy + Math.sin(angle) * (minR * 0.22);
-          const ex = cx + Math.cos(angle) * outerR;
-          const ey = cy + Math.sin(angle) * outerRY;
-
-          ctx.strokeStyle = 'rgba(255, 200, 10, 0.35)';
-          ctx.lineWidth   = 0.8;
-          ctx.beginPath();
-          ctx.moveTo(sx, sy);
-          ctx.lineTo(ex, ey);
-          ctx.stroke();
-        }
-
-        /* Glow center */
-        const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, minR * 4);
-        glow.addColorStop(0, 'rgba(0, 195, 255, 0.25)');
-        glow.addColorStop(0.5, 'rgba(0, 195, 255, 0.06)');
-        glow.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = glow;
-        ctx.fillRect(0, 0, W, H);
       }
+    }
 
-      function loop() {
-        drawTunnel();
-        requestAnimationFrame(loop);
-      }
-      loop();
-    })();
-  </script>
+    /* Horizon fade overlay */
+    const fade=ctx.createLinearGradient(0,vy-20,0,vy+40);
+    fade.addColorStop(0,'rgba(1,1,10,1)');
+    fade.addColorStop(1,'rgba(1,1,10,0)');
+    ctx.fillStyle=fade;
+    ctx.fillRect(0,vy-20,W,60);
+  }
+
+  draw();
+  window.addEventListener('resize',()=>{ resize(); draw(); });
+})();
+</script>
 </body>
 </html>
