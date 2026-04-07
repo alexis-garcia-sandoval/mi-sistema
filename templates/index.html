@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STARLESS /// MI SISTEMA</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue-deep:    #0a0f2e;
+      --blue-strong:  #1a3aff;
+      --blue-bright:  #3d85ff;
+      --blue-electric:#00c3ff;
+      --blue-neon:    #0ff4ff;
+      --green-soft:   #7effa0;
+      --green-mist:   #a8ffbc;
+      --green-glow:   #00ff88;
+      --red-pixel:    #ff2a2a;
+      --yellow-grid:  #ffe033;
+      --orange-grid:  #ff8c00;
+      --white-dim:    rgba(255,255,255,0.07);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: linear-gradient(180deg, #06091f 0%, #0d1b4b 40%, #091a2f 100%);
+      min-height: 100vh;
+      font-family: 'VT323', monospace;
+      color: var(--blue-neon);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ─── STARS LAYER ─── */
+    #stars-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── SCANLINES ─── */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.18) 2px,
+        rgba(0,0,0,0.18) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ─── MAIN LAYOUT ─── */
+    .wrapper {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+      gap: 3rem;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      text-align: center;
+      padding-top: 1.5rem;
+    }
+
+    .glitch-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.2rem, 6vw, 4.5rem);
+      font-weight: 900;
+      color: var(--blue-electric);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      position: relative;
+      display: inline-block;
+      text-shadow:
+        0 0 8px var(--blue-electric),
+        0 0 25px var(--blue-strong),
+        0 0 60px rgba(0,195,255,0.4);
+      animation: glitch-flicker 6s infinite;
+    }
+
+    .glitch-title::before,
+    .glitch-title::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+    }
+    .glitch-title::before {
+      color: var(--green-soft);
+      text-shadow: -3px 0 var(--green-soft);
+      animation: glitch-left 4s infinite linear alternate-reverse;
+      clip-path: polygon(0 10%, 100% 10%, 100% 40%, 0 40%);
+    }
+    .glitch-title::after {
+      color: var(--red-pixel);
+      text-shadow: 3px 0 var(--red-pixel);
+      animation: glitch-right 3s infinite linear alternate-reverse;
+      clip-path: polygon(0 60%, 100% 60%, 100% 85%, 0 85%);
+    }
+
+    @keyframes glitch-left {
+      0%   { transform: translateX(0); opacity: 0; }
+      2%   { transform: translateX(-4px); opacity: 0.9; }
+      4%   { transform: translateX(0); opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes glitch-right {
+      0%   { transform: translateX(0); opacity: 0; }
+      3%   { transform: translateX(4px); opacity: 0.85; }
+      6%   { transform: translateX(0); opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes glitch-flicker {
+      0%, 97%, 100% { opacity: 1; }
+      97.5% { opacity: 0.6; transform: skewX(-5deg); }
+      98%   { opacity: 1; }
+      98.5% { opacity: 0.3; transform: skewX(3deg); }
+      99%   { opacity: 1; }
+    }
+
+    .subtitle {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(0.8rem, 2vw, 1.1rem);
+      color: var(--green-soft);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      margin-top: 0.6rem;
+      opacity: 0.75;
+      text-shadow: 0 0 12px var(--green-glow);
+      animation: pulse-text 3s ease-in-out infinite;
+    }
+    @keyframes pulse-text {
+      0%, 100% { opacity: 0.6; }
+      50%       { opacity: 1; }
+    }
+
+    /* ─── PORTAL SECTION ─── */
+    .portal-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .portal-frame {
+      position: relative;
+      width: min(420px, 92vw);
+      aspect-ratio: 4/5;
+      border: 3px solid var(--orange-grid);
+      box-shadow:
+        0 0 0 6px rgba(255,140,0,0.15),
+        0 0 40px var(--orange-grid),
+        inset 0 0 40px rgba(255,50,0,0.18);
+      background: rgba(200, 30, 0, 0.55);
+      overflow: hidden;
+    }
+
+    #portal-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Orb overlays */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .orb-top {
+      width: 22%;
+      aspect-ratio: 1;
+      top: 15%;
+      right: 12%;
+      background: radial-gradient(circle at 38% 35%, #6ab4ff 0%, #1a3aff 45%, #060e38 100%);
+      box-shadow: 0 0 20px #3d85ff, 0 0 50px rgba(26,58,255,0.5);
+      animation: orb-float 5s ease-in-out infinite;
+    }
+    .orb-mid {
+      width: 14%;
+      aspect-ratio: 1;
+      top: 30%;
+      right: 25%;
+      background: radial-gradient(circle at 40% 35%, #a08080 0%, #7a2020 50%, #1a0000 100%);
+      box-shadow: 0 0 14px rgba(180,60,60,0.8);
+      animation: orb-float 7s ease-in-out infinite reverse;
+    }
+    .orb-bot {
+      width: 20%;
+      aspect-ratio: 1;
+      bottom: 16%;
+      left: 38%;
+      background: radial-gradient(circle at 38% 35%, #6ab4ff 0%, #1a3aff 45%, #060e38 100%);
+      box-shadow: 0 0 18px #3d85ff, 0 0 40px rgba(26,58,255,0.4);
+      animation: orb-float 6s ease-in-out infinite;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes orb-float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-8px) scale(1.04); }
+    }
+
+    /* Pixel glitch decorations on frame */
+    .pixel-glitch {
+      position: absolute;
+      background: var(--red-pixel);
+      image-rendering: pixelated;
+      animation: pixel-flicker 2.5s steps(1) infinite;
+    }
+    .px1 { width: 32px; height: 8px; top: 6%; right: 0; }
+    .px2 { width: 16px; height: 8px; top: 12%; right: 36px; }
+    .px3 { width: 48px; height: 8px; top: 8%; right: 8px; }
+    .px4 { width: 8px;  height: 48px; bottom: 5%; left: 0; }
+    .px5 { width: 8px;  height: 24px; bottom: 15%; left: 16px; }
+    .maze-icon {
+      position: absolute;
+      top: 4%; left: 3%;
+      width: 18%;
+      aspect-ratio: 1;
+      border: 2px solid var(--blue-electric);
+      box-shadow: 0 0 12px var(--blue-electric), inset 0 0 8px rgba(0,195,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .maze-inner {
+      width: 70%; height: 70%;
+      border: 1px solid var(--yellow-grid);
+      box-shadow: inset 0 0 6px rgba(255,224,51,0.4);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+    }
+    .maze-cell { border: 0.5px solid rgba(255,224,51,0.3); }
+
+    @keyframes pixel-flicker {
+      0%, 80%, 100% { opacity: 1; transform: translateX(0); }
+      82% { opacity: 0.3; transform: translateX(4px); }
+      85% { opacity: 1; transform: translateX(-2px); }
+      90% { opacity: 0.6; transform: translateX(0); }
+    }
+
+    /* ─── CARDS GRID ─── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .card {
+      border: 1px solid rgba(0, 195, 255, 0.3);
+      background: linear-gradient(135deg, rgba(10,15,46,0.9) 0%, rgba(5,25,55,0.85) 100%);
+      padding: 1.5rem 1.2rem;
+      position: relative;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--blue-electric), var(--green-soft), transparent);
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 30px rgba(0,195,255,0.3), 0 0 60px rgba(0,255,136,0.1);
+      border-color: var(--green-soft);
+    }
+    .card:hover::before {
+      background: linear-gradient(90deg, transparent, var(--green-soft), var(--blue-electric), transparent);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 0.7rem;
+      display: block;
+      filter: drop-shadow(0 0 8px var(--blue-electric));
+    }
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--green-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 10px var(--green-glow);
+    }
+    .card-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      color: rgba(200, 230, 255, 0.7);
+      line-height: 1.6;
+    }
+
+    /* ─── MAIN GREETING ─── */
+    .main-greeting {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      border: 1px solid rgba(0,195,255,0.2);
+      background: linear-gradient(180deg, rgba(10,15,46,0.7) 0%, rgba(0,10,30,0.9) 100%);
+      width: 100%;
+      max-width: 900px;
+      position: relative;
+      overflow: hidden;
+    }
+    .main-greeting::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--green-soft), var(--blue-electric), transparent);
+      animation: scan-line 4s linear infinite;
+    }
+    @keyframes scan-line {
+      0%   { transform: scaleX(0) translateX(-50%); }
+      100% { transform: scaleX(1) translateX(0); }
+    }
+
+    .greeting-h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.5rem, 4vw, 2.8rem);
+      font-weight: 900;
+      color: var(--blue-electric);
+      text-shadow:
+        0 0 10px var(--blue-electric),
+        0 0 30px var(--blue-strong),
+        0 0 70px rgba(0,195,255,0.3);
+      animation: glitch-flicker 8s infinite;
+    }
+    .greeting-sub {
+      font-family: 'VT323', monospace;
+      font-size: clamp(1rem, 3vw, 1.6rem);
+      color: var(--green-soft);
+      letter-spacing: 0.1em;
+      margin-top: 1rem;
+      text-shadow: 0 0 15px var(--green-glow);
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      width: 100%;
+      max-width: 900px;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        var(--blue-strong) 20%,
+        var(--green-soft) 50%,
+        var(--blue-strong) 80%,
+        transparent 100%
+      );
+      position: relative;
+    }
+    .divider::before {
+      content: '◆ S T A R L E S S ◆';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      color: var(--green-mist);
+      background: #0a0f2e;
+      padding: 0 1rem;
+      text-shadow: 0 0 10px var(--green-glow);
+    }
+
+    /* ─── PIXEL DIAGONAL STRIPES (bottom right) ─── */
+    .pixel-stripes {
+      position: fixed;
+      bottom: 8%;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: none;
+      z-index: 5;
+      animation: pixel-flicker 3s steps(1) infinite;
+    }
+    .stripe {
+      height: 8px;
+      background: var(--red-pixel);
+      image-rendering: pixelated;
+    }
+    .stripe:nth-child(1) { width: 90px; transform: translateX(-10px) rotate(-2deg); }
+    .stripe:nth-child(2) { width: 140px; transform: translateX(-30px) rotate(-2deg); }
+    .stripe:nth-child(3) { width: 60px; transform: translateX(-5px) rotate(-2deg); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: rgba(0, 195, 255, 0.35);
+      letter-spacing: 0.3em;
+      text-align: center;
+      padding-bottom: 1.5rem;
+    }
+    footer span {
+      color: var(--green-soft);
+      text-shadow: 0 0 8px var(--green-glow);
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Stars -->
+  <canvas id="stars-canvas"></canvas>
+
+  <!-- Pixel stripes decoration -->
+  <div class="pixel-stripes">
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+  </div>
+
+  <div class="wrapper">
+
+    <!-- HEADER -->
+    <header>
+      <h2 class="glitch-title" data-text="MI SISTEMA">MI SISTEMA</h2>
+      <p class="subtitle">// FLUX TRANSMISSION :: NODE ACTIVE //</p>
+    </header>
+
+    <!-- PORTAL -->
+    <section class="portal-section">
+      <div class="portal-frame">
+        <!-- Grid tunnel canvas -->
+        <canvas id="portal-canvas"></canvas>
+
+        <!-- Maze icon -->
+        <div class="maze-icon">
+          <div class="maze-inner">
+            <div class="maze-cell"></div><div class="maze-cell"></div>
+            <div class="maze-cell"></div><div class="maze-cell"></div>
+            <div class="maze-cell"></div><div class="maze-cell"></div>
+            <div class="maze-cell"></div><div class="maze-cell"></div>
+            <div class="maze-cell"></div><div class="maze-cell"></div>
+            <div class="maze-cell"></div><div class="maze-cell"></div>
+            <div class="maze-cell"></div><div class="maze-cell"></div>
+            <div class="maze-cell"></div><div class="maze-cell"></div>
+          </div>
+        </div>
+
+        <!-- Orbs -->
+        <div class="orb orb-top"></div>
+        <div class="orb orb-mid"></div>
+        <div class="orb orb-bot"></div>
+
+        <!-- Pixel glitch edge decorations -->
+        <div class="pixel-glitch px1"></div>
+        <div class="pixel-glitch px2"></div>
+        <div class="pixel-glitch px3"></div>
+        <div class="pixel-glitch px4"></div>
+        <div class="pixel-glitch px5"></div>
+      </div>
+    </section>
+
+    <!-- DIVIDER -->
+    <div class="divider"></div>
+
+    <!-- MAIN GREETING -->
+    <section class="main-greeting">
+      <h1 class="greeting-h1">Hola desde Flask</h1>
+      <p class="greeting-sub">
+        &gt;_ SISTEMA EN LINEA &nbsp; // &nbsp; PROTOCOLO ACTIVO
+      </p>
+    </section>
+
+    <!-- CARDS -->
+    <section class="cards">
+      <div class="card">
+        <span class="card-icon">◈</span>
+        <div class="card-title">Sistema</div>
+        <div class="card-text">Núcleo operativo inicializado. Todos los módulos en estado nominal.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">⬡</span>
+        <div class="card-title">Señal</div>
+        <div class="card-text">Transmisión recibida desde el vacío. Frecuencia estabilizada en banda azul.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">⊛</span>
+        <div class="card-title">Protocolo</div>
+        <div class="card-text">Starless — más allá del horizonte de eventos. Conexión persistente.</div>
+      </div>
+    </section>
+
+    <!-- FOOTER DIVIDER -->
+    <div class="divider"></div>
+
+    <footer>
+      <span>© MMXXVI</span> &nbsp;·&nbsp; MI SISTEMA &nbsp;·&nbsp; <span>VAPORWAVE BUILD</span>
+    </footer>
+
+  </div>
+
+  <script>
+    /* ── STARS ── */
+    (function() {
+      const canvas = document.getElementById('stars-canvas');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+
+      function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      function initStars() {
+        stars = [];
+        for (let i = 0; i < 220; i++) {
+          stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.4 + 0.2,
+            alpha: Math.random() * 0.7 + 0.2,
+            speed: Math.random() * 0.012 + 0.004,
+            phase: Math.random() * Math.PI * 2,
+            color: Math.random() > 0.6
+              ? `rgba(126,255,160,` // green-soft
+              : `rgba(0,195,255,`   // blue-electric
+          });
+        }
+      }
+
+      function drawStars(t) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(s => {
+          const a = s.alpha * (0.5 + 0.5 * Math.sin(t * s.speed + s.phase));
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = s.color + a + ')';
+          ctx.fill();
+        });
+      }
+
+      function loop(t) {
+        drawStars(t);
+        requestAnimationFrame(loop);
+      }
+
+      resize();
+      initStars();
+      window.addEventListener('resize', () => { resize(); initStars(); });
+      requestAnimationFrame(loop);
+    })();
+
+    /* ── PORTAL GRID TUNNEL ── */
+    (function() {
+      const canvas = document.getElementById('portal-canvas');
+      const ctx = canvas.getContext('2d');
+
+      function resize() {
+        canvas.width  = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const NUM_RINGS  = 18;
+      const NUM_LINES  = 14;
+      const SPEED      = 0.008;
+      let offset       = 0;
+
+      function lerp(a, b, t) { return a + (b - a) * t; }
+
+      function drawTunnel(t) {
+        const W = canvas.width;
+        const H = canvas.height;
+        const cx = W * 0.5;
+        const cy = H * 0.54;
+
+        /* Background */
+        ctx.fillStyle = 'rgba(180, 20, 0, 0.88)';
+        ctx.fillRect(0, 0, W, H);
+
+        /* Subtle vignette */
+        const vig = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.7);
+        vig.addColorStop(0, 'rgba(0,0,0,0)');
+        vig.addColorStop(1, 'rgba(0,0,0,0.55)');
+        ctx.fillStyle = vig;
+        ctx.fillRect(0, 0, W, H);
+
+        const maxR   = Math.min(W, H) * 0.96;
+        const minR   = Math.min(W, H) * 0.04;
+
+        offset = (offset + SPEED) % 1;
+
+        /* Draw concentric ellipses (rings) */
+        for (let i = 0; i <= NUM_RINGS; i++) {
+          const frac = ((i / NUM_RINGS) + offset) % 1;
+          const r = lerp(minR, maxR, frac);
+
+          /* perspective squish: rings farther = more squished vertically */
+          const squeeze = lerp(0.22, 0.68, frac);
+          const rx = r * 0.58;
+          const ry = r * squeeze;
+
+          const alpha = lerp(0.05, 0.9, frac);
+          const g     = Math.floor(lerp(50, 224, frac));   // yellow–orange tint in grid lines
+          ctx.strokeStyle = `rgba(255, ${g}, 0, ${alpha})`;
+          ctx.lineWidth   = lerp(0.5, 1.6, frac);
+
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        /* Draw radial lines from center */
+        for (let i = 0; i < NUM_LINES; i++) {
+          const angle = (i / NUM_LINES) * Math.PI * 2;
+          const outerFrac = 1;
+          const outerR  = maxR * 0.58;
+          const outerRY = maxR * 0.68;
+
+          const sx = cx + Math.cos(angle) * (minR * 0.58);
+          const sy = cy + Math.sin(angle) * (minR * 0.22);
+          const ex = cx + Math.cos(angle) * outerR;
+          const ey = cy + Math.sin(angle) * outerRY;
+
+          ctx.strokeStyle = 'rgba(255, 200, 10, 0.35)';
+          ctx.lineWidth   = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.lineTo(ex, ey);
+          ctx.stroke();
+        }
+
+        /* Glow center */
+        const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, minR * 4);
+        glow.addColorStop(0, 'rgba(0, 195, 255, 0.25)');
+        glow.addColorStop(0.5, 'rgba(0, 195, 255, 0.06)');
+        glow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      function loop() {
+        drawTunnel();
+        requestAnimationFrame(loop);
+      }
+      loop();
+    })();
+  </script>
+</body>
+</html>
